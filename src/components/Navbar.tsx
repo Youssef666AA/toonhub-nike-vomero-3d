@@ -35,7 +35,6 @@ export default function Navbar({
 
   const navLinks = [
     { label: '3D HERO', href: '#hero' },
-    { label: '3D SPATIAL LAB', href: '#spatial-lab' },
     { label: 'LAB SPECS', href: '#specs' },
     { label: 'SS-26 VAULT', href: '#vault' },
     { label: 'CUSTOM STUDIO', href: '#customizer' },

@@ -7,11 +7,9 @@ import {
   Plus,
   ShieldCheck,
   Zap,
-  ChevronDown,
 } from 'lucide-react';
 import AnnouncementBar from './components/AnnouncementBar';
 import Navbar from './components/Navbar';
-import SpatialHolodeckSection from './components/SpatialHolodeckSection';
 import TechSpecsSection from './components/TechSpecsSection';
 import CollectionGrid from './components/CollectionGrid';
 import CustomizerSection from './components/CustomizerSection';
@@ -364,27 +362,6 @@ export default function App() {
     setIsCartOpen(true);
   };
 
-  const handleAddSplitToCart = (
-    title: string,
-    colorway: string,
-    price: number,
-    src: string
-  ) => {
-    sound.playSuccess();
-    const newItem: CartItem = {
-      id: `split-${Date.now()}`,
-      productId: 'vomero-split',
-      title: title,
-      colorway: colorway,
-      size: selectedSize,
-      price: price,
-      src: src,
-      quantity: 1,
-    };
-    setCartItems((prev) => [...prev, newItem]);
-    triggerToast(`${title} — ${colorway} (${selectedSize}) added to bag`);
-    setIsCartOpen(true);
-  };
 
   const handleAddCollectionToCart = (product: ProductColorway, size: string) => {
     sound.playSuccess();
@@ -882,32 +859,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* Center Bottom: Discover Spatial Holodeck Showcase Prompt */}
-        <div className="absolute bottom-5 inset-x-0 hidden md:flex justify-center pointer-events-auto z-[60] no-drag">
-          <a
-            href="#spatial-lab"
-            onClick={(e) => {
-              e.preventDefault();
-              sound.playClick();
-              const el = document.getElementById('spatial-lab');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/25 backdrop-blur-xl text-white text-xs font-mono tracking-wider uppercase transition-all duration-300 hover:scale-105 hover:border-lime-400 group cursor-pointer shadow-2xl"
-          >
-            <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
-            <span className="font-bold">LAUNCH 3D SPATIAL LAB</span>
-            <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform text-lime-400" />
-          </a>
-        </div>
       </section>
 
-      {/* 4. Section 2: Spatial 3D Kinetic Holodeck & Multi-Mode Studio */}
-      <SpatialHolodeckSection
-        currency={currency}
-        onAddToCart={handleAddSplitToCart}
-      />
-
-      {/* 5. Section 3: Exploded 3D Anatomy & Innovation Lab Telemetry */}
+      {/* 4. Section 2: Exploded 3D Anatomy & Innovation Lab Telemetry */}
       <TechSpecsSection />
 
       {/* 6. Section 4: The SS-26 Vault Collection Matrix */}
