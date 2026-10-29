@@ -66,6 +66,7 @@ export interface ReviewItem {
   content: string;
   shoeColorway: string;
   sizeBought: string;
+  tags?: string[];
   metrics: {
     comfort: number;
     fit: string;

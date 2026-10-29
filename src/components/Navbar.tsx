@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { CurrencyCode, CURRENCIES } from '../types/store';
 
+import { sound } from '../utils/sound';
+
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
@@ -32,7 +34,8 @@ export default function Navbar({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: '3D SHOWCASE', href: '#hero' },
+    { label: '3D HERO', href: '#hero' },
+    { label: '3D SPATIAL LAB', href: '#spatial-lab' },
     { label: 'LAB SPECS', href: '#specs' },
     { label: 'SS-26 VAULT', href: '#vault' },
     { label: 'CUSTOM STUDIO', href: '#customizer' },
@@ -43,6 +46,7 @@ export default function Navbar({
 
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    sound.playClick();
     setIsMobileMenuOpen(false);
     const target = document.querySelector(href);
     if (target) {

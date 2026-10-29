@@ -7,9 +7,11 @@ import {
   Plus,
   ShieldCheck,
   Zap,
+  ChevronDown,
 } from 'lucide-react';
 import AnnouncementBar from './components/AnnouncementBar';
 import Navbar from './components/Navbar';
+import SpatialHolodeckSection from './components/SpatialHolodeckSection';
 import TechSpecsSection from './components/TechSpecsSection';
 import CollectionGrid from './components/CollectionGrid';
 import CustomizerSection from './components/CustomizerSection';
@@ -18,6 +20,7 @@ import ReviewsSection from './components/ReviewsSection';
 import FaqSection from './components/FaqSection';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
+import { sound } from './utils/sound';
 import {
   CurrencyCode,
   CURRENCIES,
@@ -216,6 +219,7 @@ export default function App() {
   const navigate = useCallback(
     (direction: 'next' | 'prev') => {
       if (isAnimating) return;
+      sound.playSwoosh();
       setIsAnimating(true);
       setActiveHotspot(null);
       setActiveIndex((prev) => {
@@ -229,22 +233,24 @@ export default function App() {
     [isAnimating]
   );
 
-  // Continuous 360 Scroll interaction
+  // Wheel interaction: Only allow quick cycling when explicitly hovering, otherwise allow natural scroll
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // Only capture wheel scroll if on top of the hero section
       const heroEl = document.getElementById('hero');
       if (!heroEl) return;
       const rect = heroEl.getBoundingClientRect();
-      const inHero = rect.top >= -100 && rect.bottom >= window.innerHeight * 0.7;
+      const inHero = rect.top >= -50 && rect.bottom >= window.innerHeight * 0.85;
 
-      if (!inHero) return;
+      // Only cycle views if user is explicitly inside the top hero without scrolling down deeply
+      if (!inHero || window.scrollY > 80) return;
 
       const now = Date.now();
-      if (now - lastScrollTime.current < 850) return;
-      if (Math.abs(e.deltaY) > 35) {
+      if (now - lastScrollTime.current < 900) return;
+
+      // If user scrolls horizontally on trackpad, rotate
+      if (Math.abs(e.deltaX) > 40) {
         lastScrollTime.current = now;
-        if (e.deltaY > 0) {
+        if (e.deltaX > 0) {
           navigate('next');
         } else {
           navigate('prev');
@@ -300,6 +306,38 @@ export default function App() {
     setDragDelta(0);
   };
 
+  // Touch Swipe Handlers for mobile/tablet
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('button, a, .no-drag, input')) return;
+    setIsDragging(true);
+    setDragStart(e.touches[0].clientX);
+    setDragDelta(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging) {
+      setDragDelta(e.touches[0].clientX - dragStart);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    if (dragDelta < -45) {
+      navigate('next');
+    } else if (dragDelta > 45) {
+      navigate('prev');
+    }
+    setDragDelta(0);
+  };
+
+  // Sound Toggle handler
+  const handleToggleSound = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    sound.setMuted(nextMuted);
+  };
+
   // Cart Operations
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -310,6 +348,7 @@ export default function App() {
   };
 
   const handleAddHeroToCart = () => {
+    sound.playSuccess();
     const newItem: CartItem = {
       id: `hero-${Date.now()}`,
       productId: 'vomero-volt',
@@ -325,7 +364,30 @@ export default function App() {
     setIsCartOpen(true);
   };
 
+  const handleAddSplitToCart = (
+    title: string,
+    colorway: string,
+    price: number,
+    src: string
+  ) => {
+    sound.playSuccess();
+    const newItem: CartItem = {
+      id: `split-${Date.now()}`,
+      productId: 'vomero-split',
+      title: title,
+      colorway: colorway,
+      size: selectedSize,
+      price: price,
+      src: src,
+      quantity: 1,
+    };
+    setCartItems((prev) => [...prev, newItem]);
+    triggerToast(`${title} — ${colorway} (${selectedSize}) added to bag`);
+    setIsCartOpen(true);
+  };
+
   const handleAddCollectionToCart = (product: ProductColorway, size: string) => {
+    sound.playSuccess();
     const newItem: CartItem = {
       id: `${product.id}-${Date.now()}`,
       productId: product.id,
@@ -350,6 +412,7 @@ export default function App() {
     size: string;
     price: number;
   }) => {
+    sound.playSuccess();
     const newItem: CartItem = {
       id: `custom-${Date.now()}`,
       productId: 'vomero-bespoke',
@@ -476,7 +539,7 @@ export default function App() {
         currency={currency}
         onCurrencyChange={setCurrency}
         isMuted={isMuted}
-        onToggleSound={() => setIsMuted(!isMuted)}
+        onToggleSound={handleToggleSound}
       />
 
       {/* 3. Hero Section (Full Viewport 3D Cinematic Showcase) */}
@@ -485,6 +548,9 @@ export default function App() {
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         className="relative w-full h-[calc(100vh-80px)] min-h-[640px] max-h-[960px] overflow-hidden select-none cursor-grab active:cursor-grabbing text-white"
         style={{
           backgroundColor: currentView.bg,
@@ -815,29 +881,55 @@ export default function App() {
             <span>FREE EXPRESS 2-DAY SHIPPING</span>
           </div>
         </div>
+
+        {/* Center Bottom: Discover Spatial Holodeck Showcase Prompt */}
+        <div className="absolute bottom-5 inset-x-0 hidden md:flex justify-center pointer-events-auto z-[60] no-drag">
+          <a
+            href="#spatial-lab"
+            onClick={(e) => {
+              e.preventDefault();
+              sound.playClick();
+              const el = document.getElementById('spatial-lab');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/25 backdrop-blur-xl text-white text-xs font-mono tracking-wider uppercase transition-all duration-300 hover:scale-105 hover:border-lime-400 group cursor-pointer shadow-2xl"
+          >
+            <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
+            <span className="font-bold">LAUNCH 3D SPATIAL LAB</span>
+            <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform text-lime-400" />
+          </a>
+        </div>
       </section>
 
-      {/* 4. Section 2: Exploded 3D Anatomy & Innovation Lab Telemetry */}
+      {/* 4. Section 2: Spatial 3D Kinetic Holodeck & Multi-Mode Studio */}
+      <SpatialHolodeckSection
+        currency={currency}
+        onAddToCart={handleAddSplitToCart}
+      />
+
+      {/* 5. Section 3: Exploded 3D Anatomy & Innovation Lab Telemetry */}
       <TechSpecsSection />
 
-      {/* 5. Section 3: The SS-26 Vault Collection Matrix */}
+      {/* 6. Section 4: The SS-26 Vault Collection Matrix */}
       <CollectionGrid
         currency={currency}
         onAddToCart={handleAddCollectionToCart}
       />
 
-      {/* 6. Section 4: Nike By You Customizer Studio */}
+      {/* 7. Section 5: Nike By You Customizer Studio */}
       <CustomizerSection
         currency={currency}
         onAddCustomToCart={handleAddCustomToCart}
       />
 
-      {/* 7. Section 5: Tokyo Shibuya Streetwear Lookbook */}
+      {/* 8. Section 6: Tokyo Shibuya Streetwear Lookbook */}
       <LookbookSection
         currency={currency}
-        onQuickShop={() => {
+        onQuickShop={(colorwayId) => {
+          sound.playClick();
           const el = document.getElementById('vault');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
+          triggerToast(`Viewing ${colorwayId.replace('-', ' ').toUpperCase()} in SS-26 Vault`);
         }}
       />
 

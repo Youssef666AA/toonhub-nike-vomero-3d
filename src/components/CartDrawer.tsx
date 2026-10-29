@@ -12,6 +12,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { CartItem, CurrencyCode, CURRENCIES } from '../types/store';
+import { sound } from '../utils/sound';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -48,10 +49,12 @@ export default function CartDrawer({
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
     if (promoCode.trim().toUpperCase() === 'VIP20' || promoCode.trim().toUpperCase() === 'TOONHUB') {
+      sound.playSuccess();
       setDiscountPercent(0.2);
       setPromoSuccess('PROMO APPLIED // 20% OFF');
       setPromoError('');
     } else {
+      sound.playClick();
       setPromoError('INVALID CODE (TRY "VIP20")');
       setPromoSuccess('');
     }

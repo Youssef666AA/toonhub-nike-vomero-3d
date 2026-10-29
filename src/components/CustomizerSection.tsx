@@ -5,6 +5,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { CurrencyCode, CURRENCIES } from '../types/store';
+import { sound } from '../utils/sound';
 
 interface CustomizerSectionProps {
   currency: CurrencyCode;
@@ -28,6 +29,14 @@ const COLOR_OPTIONS = [
   { name: 'Stealth Black', hex: '#18181B', filter: 'saturate(0) brightness(0.6)' },
 ];
 
+const ZONE_COORDINATES = {
+  mesh: { x: 62, y: 44, label: '01 // UPPER MONOMESH' },
+  swoosh: { x: 44, y: 47, label: '02 // NIKE SWOOSH ICON' },
+  midsole: { x: 48, y: 65, label: '03 // CUSHLON MIDSOLE' },
+  outsole: { x: 38, y: 72, label: '04 // WAFFLE OUTSOLE' },
+  laces: { x: 60, y: 35, label: '05 // HIGH-TENSILE LACES' },
+};
+
 const SIZES = ['US 8', 'US 8.5', 'US 9', 'US 9.5', 'US 10', 'US 10.5', 'US 11', 'US 12'];
 
 export default function CustomizerSection({ currency, onAddCustomToCart }: CustomizerSectionProps) {
@@ -46,6 +55,7 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
   const formatPrice = (usd: number) => `${currInfo.symbol}${Math.round(usd * currInfo.rate)}`;
 
   const handleColorSelect = (color: typeof COLOR_OPTIONS[0]) => {
+    sound.playClick();
     setZones((prev) => ({
       ...prev,
       [activeZone]: color,
@@ -53,6 +63,7 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
   };
 
   const handleReset = () => {
+    sound.playSwoosh();
     setZones({
       mesh: COLOR_OPTIONS[0],
       swoosh: COLOR_OPTIONS[4],
@@ -70,6 +81,8 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
     { id: 'laces', label: '05 // HIGH-TENSILE LACES', val: zones.laces },
   ] as const;
 
+  const currentCoords = ZONE_COORDINATES[activeZone];
+
   return (
     <section
       id="customizer"
@@ -78,7 +91,7 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
       {/* Dynamic Background Glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[140px] opacity-25 pointer-events-none transition-all duration-700"
-        style={{ backgroundColor: zones.mesh.hex }}
+        style={{ backgroundColor: zones[activeZone].hex }}
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-8">
@@ -124,6 +137,33 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
                 }}
               />
 
+              {/* Dynamic Target Reticle for Active Component Zone */}
+              <div
+                className="absolute pointer-events-none transition-all duration-500"
+                style={{
+                  left: `${currentCoords.x}%`,
+                  top: `${currentCoords.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                <div className="relative flex items-center justify-center">
+                  <span
+                    className="absolute w-14 h-14 rounded-full border border-dashed animate-spin opacity-80"
+                    style={{
+                      borderColor: zones[activeZone].hex,
+                      animationDuration: '5s',
+                    }}
+                  />
+                  <span
+                    className="w-4 h-4 rounded-full border-2 border-white shadow-xl"
+                    style={{ backgroundColor: zones[activeZone].hex }}
+                  />
+                  <div className="absolute left-8 top-1/2 -translate-y-1/2 whitespace-nowrap px-2.5 py-1 rounded bg-black/90 border border-white/20 text-[10px] font-mono font-bold text-white shadow-xl">
+                    {currentCoords.label.split(' // ')[1]} ({zones[activeZone].name})
+                  </div>
+                </div>
+              </div>
+
               {/* Laser Dimension Overlay Lines */}
               <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] font-mono text-white/50 border-t border-white/15 pt-2">
                 <span>BESPOKE BUILD ID: #TH-9021</span>
@@ -146,7 +186,10 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
                     <button
                       key={z.id}
                       type="button"
-                      onClick={() => setActiveZone(z.id)}
+                      onClick={() => {
+                        sound.playClick();
+                        setActiveZone(z.id);
+                      }}
                       className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer ${
                         isActive
                           ? 'bg-white/10 border-white text-white shadow-lg'
@@ -210,7 +253,10 @@ export default function CustomizerSection({ currency, onAddCustomToCart }: Custo
                       <button
                         key={sz}
                         type="button"
-                        onClick={() => setSelectedSize(sz)}
+                        onClick={() => {
+                          sound.playClick();
+                          setSelectedSize(sz);
+                        }}
                         className={`py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer border ${
                           isSel
                             ? 'bg-white text-black border-white shadow-md'

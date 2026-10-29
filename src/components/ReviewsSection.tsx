@@ -16,6 +16,7 @@ const REVIEWS: ReviewItem[] = [
       'The dual Zoom Air units provide unreal rebound on NYC asphalt. The 3D ribbed cage lockdown gives supreme lateral stability, and the Volt Matrix colorway is even more electric in person. 10/10.',
     shoeColorway: 'Volt Matrix Edition',
     sizeBought: 'US 10.5',
+    tags: ['COMFORT', 'DURABILITY', 'STYLING'],
     metrics: { comfort: 10, fit: 'True to Size', support: 9.8 },
   },
   {
@@ -28,9 +29,10 @@ const REVIEWS: ReviewItem[] = [
     date: '1 WEEK AGO',
     headline: 'UNMATCHED ALL-DAY COMFORT & HIGH-HEAT AESTHETICS',
     content:
-      'I walk 15,000+ steps daily in Berlin. The open-cell monomesh upper keeps feet completely dry and cool even after 10 hours. The packaging, delivery speed, and 3D visualizer experience on this store was world-class.',
+      'I walk 15,000+ steps daily in Berlin. The open-cell monomesh upper keeps feet completely dry and cool even after 10 hours. Sizing is spot on True to Size. The packaging and delivery speed was world-class.',
     shoeColorway: 'Titanium Platinum',
     sizeBought: 'US 8',
+    tags: ['COMFORT', 'FIT & SIZING'],
     metrics: { comfort: 9.9, fit: 'True to Size', support: 9.9 },
   },
   {
@@ -46,7 +48,40 @@ const REVIEWS: ReviewItem[] = [
       'The Triple Obsidian Cyber glow swoosh under street lamps looks unbelievable. Segmented waffle outsole makes heel transitions smoother than any modern carbon plate shoe. Fast 2-day international shipping too!',
     shoeColorway: 'Triple Obsidian Cyber',
     sizeBought: 'US 9.5',
+    tags: ['DURABILITY', 'STYLING'],
     metrics: { comfort: 9.8, fit: 'True to Size', support: 10 },
+  },
+  {
+    id: 'rev-4',
+    author: 'CHLOE DUPONT',
+    handle: '@chloe_paris',
+    location: 'PARIS, FRANCE',
+    verified: true,
+    rating: 5,
+    date: '3 WEEKS AGO',
+    headline: 'PERFECT FOREFOOT ROOM & ZERO HEEL SLIPPAGE',
+    content:
+      'As a wide-foot runner I usually struggle with sleek silhouettes, but the Vomero 5 accommodates perfectly with zero pinch points or heel lift. True to size with great arch wrap.',
+    shoeColorway: 'Glitch Neon Aqua',
+    sizeBought: 'US 9',
+    tags: ['FIT & SIZING', 'COMFORT'],
+    metrics: { comfort: 9.7, fit: 'True to Size', support: 9.9 },
+  },
+  {
+    id: 'rev-5',
+    author: 'DEVON BROOKS',
+    handle: '@devon_runs',
+    location: 'LONDON, UK',
+    verified: true,
+    rating: 5,
+    date: '1 MONTH AGO',
+    headline: 'BRS 1000 RUBBER STILL LOOKS BRAND NEW AFTER 400KM',
+    content:
+      'Logged 400+ km through wet London pavements. Waffle outsole lugs show virtually zero degradation and the Cushlon foam hasn’t packed down at all. Remarkable engineering quality.',
+    shoeColorway: 'Midnight Stealth Core',
+    sizeBought: 'US 11',
+    tags: ['DURABILITY'],
+    metrics: { comfort: 9.6, fit: 'True to Size', support: 10 },
   },
 ];
 
@@ -55,9 +90,10 @@ export default function ReviewsSection() {
 
   const tags = ['ALL', 'COMFORT', 'FIT & SIZING', 'DURABILITY', 'STYLING'];
 
-  const filteredReviews = selectedTag === 'ALL'
-    ? REVIEWS
-    : REVIEWS.filter(() => true);
+  const filteredReviews =
+    selectedTag === 'ALL'
+      ? REVIEWS
+      : REVIEWS.filter((rev) => rev.tags?.includes(selectedTag));
 
   return (
     <section

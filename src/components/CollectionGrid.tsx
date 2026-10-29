@@ -4,6 +4,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { ProductColorway, CurrencyCode, CURRENCIES } from '../types/store';
+import { sound } from '../utils/sound';
 
 export const PRODUCTS: ProductColorway[] = [
   {
@@ -189,7 +190,10 @@ export default function CollectionGrid({ currency, onAddToCart }: CollectionGrid
               <button
                 key={f}
                 type="button"
-                onClick={() => setFilter(f)}
+                onClick={() => {
+                  sound.playClick();
+                  setFilter(f);
+                }}
                 className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold uppercase transition-colors cursor-pointer ${
                   filter === f
                     ? 'bg-white text-black font-extrabold shadow-md'
@@ -303,12 +307,13 @@ export default function CollectionGrid({ currency, onAddToCart }: CollectionGrid
                             <button
                               key={sz}
                               type="button"
-                              onClick={() =>
+                              onClick={() => {
+                                sound.playClick();
                                 setSelectedSizes((prev) => ({
                                   ...prev,
                                   [product.id]: sz,
-                                }))
-                              }
+                                }));
+                              }}
                               className={`py-1 rounded-lg text-[10px] font-mono font-bold transition-all duration-200 cursor-pointer border ${
                                 isSel
                                   ? 'bg-white text-black border-white shadow-md'
